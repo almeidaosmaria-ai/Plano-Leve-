@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Plano Leve</title>
+<style>
+:root{--bg:#f3faf5;--card:#fff;--tx:#143020;--mu:#5b7466;--g:#2e9e5b;--g2:#1c7a42;--gl:#e0f3e7;--bd:#d6e9dc}
+*{box-sizing:border-box;margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body{background:var(--bg);color:var(--tx);min-height:100vh;padding-bottom:90px}
+header{padding:calc(24px + env(safe-area-inset-top,0px)) 20px 20px;background:linear-gradient(135deg,#3cb56b,#1c7a42);color:#fff;border-radius:0 0 30px 30px}
+header h1{font-size:26px}header p{font-size:14px;opacity:.92;margin-top:3px}
+main{padding:18px 16px;max-width:520px;margin:auto}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:22px;padding:20px;margin-bottom:14px;box-shadow:0 4px 14px rgba(30,120,70,.07)}
+h2{font-size:19px;margin-bottom:6px}
+.sub{font-size:14px;color:var(--mu)}
+label{display:block;font-size:13px;color:var(--mu);margin:12px 0 5px;font-weight:600}
+input,select{width:100%;padding:14px;border:1.5px solid var(--bd);border-radius:14px;font-size:16px;background:var(--bg);color:var(--tx)}
+input:focus,select:focus{outline:none;border-color:var(--g)}
+.row{display:flex;gap:10px}.row>div{flex:1}
+.btn{width:100%;margin-top:16px;padding:16px;border:0;border-radius:16px;background:linear-gradient(135deg,#3cb56b,#2e9e5b);color:#fff;font-size:17px;font-weight:700;cursor:pointer;box-shadow:0 6px 16px rgba(46,158,91,.35)}
+.btn:active{transform:scale(.98)}
+.res{display:none;margin-top:16px}
+.stat{background:var(--gl);border-radius:16px;padding:14px;text-align:center}
+.stat b{display:block;font-size:22px;color:var(--g2)}.stat span{font-size:12px;color:var(--mu)}
+.res .row{margin-top:10px}
+.item{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--bd);font-size:15px}
+.item small{display:block;color:var(--g2);font-weight:700;font-size:12px}
+.x{border:0;background:transparent;color:var(--mu);font-size:22px;padding:4px 10px;cursor:pointer}
+.cont{font-size:12px;color:var(--mu);margin-top:12px;text-align:center}
+.meal{background:var(--gl);border-radius:16px;padding:14px;margin-top:12px;font-size:15px;line-height:1.4}
+.meal em{display:block;font-style:normal;font-size:12px;color:var(--g2);font-weight:700;text-transform:uppercase;margin-bottom:3px}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;gap:4px;background:var(--card);border-top:1px solid var(--bd);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
+nav button{flex:1;border:0;background:transparent;color:var(--mu);font-size:12px;font-weight:600;padding:8px;border-radius:14px;cursor:pointer}
+nav button.on{background:var(--gl);color:var(--g2)}
+nav button i{display:block;font-style:normal;font-size:21px}
+.sec{display:none}.sec.on{display:block}
+.modal{position:fixed;inset:0;background:rgba(10,35,20,.65);display:none;align-items:center;justify-content:center;padding:24px;z-index:9}
+.modal.on{display:flex}
+.box{background:#fff;border-radius:26px;padding:28px 22px;text-align:center;max-width:360px;width:100%;max-height:92vh;overflow:auto}
+.box .ic{font-size:46px}.box h3{margin:8px 0;font-size:20px}.box p{color:var(--mu);font-size:14px;line-height:1.55}
+.alt{width:100%;border:0;background:transparent;color:var(--mu);margin-top:8px;padding:10px;font-size:14px;cursor:pointer}
+</style>
+</head>
+<body>
+<header><h1>🌿 Plano Leve</h1><p>Seu caminho leve para uma vida saudável</p></header>
+<main>
+
+<section id="metas" class="sec on">
+<div class="card"><h2>Calculadora de Metas</h2>
+<p class="sub">Descubra seu IMC, calorias e água por dia.</p>
+<div class="row"><div><label>Peso (kg)</label><input id="peso" type="number" inputmode="decimal" placeholder="72"></div>
+<div><label>Altura (cm)</label><input id="alt" type="number" inputmode="decimal" placeholder="165"></div></div>
+<label>Idade (anos)</label><input id="idade" type="number" inputmode="numeric" placeholder="30">
+<label>Objetivo</label><select id="obj"><option value="emagrecer">Emagrecer</option><option value="manter">Manter o peso</option></select>
+<button class="btn" onclick="calcular()">Calcular</button>
+<p id="errcalc" style="display:none;color:#c0392b;font-size:14px;margin-top:10px;text-align:center">Preencha peso, altura (em cm) e idade para calcular.</p>
+<div id="res" class="res">
+<div class="stat"><b id="imc"></b><span id="cls"></span></div>
+<div class="row"><div class="stat"><b id="cal"></b><span>calorias por dia</span></div>
+<div class="stat"><b id="agua"></b><span>água por dia</span></div></div>
+<p class="cont">Valores estimados. Não substituem orientação de nutricionista ou médico.</p>
+</div></div></section>
+
+<section id="diario" class="sec">
+<div class="card"><h2>Diário de Refeições</h2>
+<p class="sub">Anote o que você comeu hoje.</p>
+<label>Refeição</label><select id="tipo"><option>Café da manhã</option><option>Almoço</option><option>Lanche</option><option>Jantar</option></select>
+<label>O que você comeu?</label><input id="txt" placeholder="Ex: omelete com salada">
+<button class="btn" onclick="registrar()">Registrar refeição</button>
+<div id="lista" style="margin-top:12px"></div>
+<p id="cont" class="cont"></p>
+<button class="alt" id="jatenho" onclick="abrir()">Já tenho um código de acesso</button></div></section>
+
+<section id="cardapio" class="sec">
+<div class="card"><h2>Cardápio Prático</h2>
+<p class="sub">Sem ideia do que comer? Sorteie uma sugestão.</p>
+<button class="btn" onclick="sortear()">🎲 Sortear sugestão</button>
+<div id="sug"></div></div></section>
+
+</main>
+
+<nav>
+<button class="on" onclick="ir('metas',this)"><i>🎯</i>Metas</button>
+<button onclick="ir('diario',this)"><i>📝</i>Diário</button>
+<button onclick="ir('cardapio',this)"><i>🥗</i>Cardápio</button>
+</nav>
+
+<div id="modal" class="modal"><div class="box">
+<div class="ic">🔒</div><h3>Limite gratuito atingido</h3>
+<p>Você usou seus 2 registros gratuitos. Desbloqueie o Plano Leve e registre quantas refeições quiser, para sempre.</p>
+<a id="comprar" class="btn" style="display:block;text-decoration:none;text-align:center" href="https://pay.kiwify.com.br/I5P6GZI" target="_blank" rel="noopener noreferrer">Desbloquear Acesso Vitalício por R$ 14,90</a>
+<p style="font-size:12px;margin-top:10px;color:#5b7466">Se o botão não abrir, copie este link e cole no navegador:<br><span id="linkcopia" style="user-select:all;-webkit-user-select:all;word-break:break-all;font-weight:700;color:#1c7a42">https://pay.kiwify.com.br/I5P6GZI</span></p>
+<p style="margin-top:18px;font-size:13px">Já comprou? Digite o código de acesso que você recebeu por e-mail:</p>
+<input id="codigo" placeholder="Seu código de acesso" autocapitalize="characters" style="margin-top:8px;text-align:center">
+<p id="erro" style="color:#c0392b;font-size:13px;margin-top:6px;display:none">Código incorreto. Confira o e-mail da compra.</p>
+<button class="btn" style="margin-top:10px;background:#1c7a42" onclick="validar()">Liberar acesso</button>
+<button class="alt" onclick="fechar()">Agora não</button>
+</div></div>
+
+<script>
+var CHECKOUT_URL='https://pay.kiwify.com.br/I5P6GZI';
+var LIMITE=2;
+var CODIGO_ACESSO='PLANOLEVE2026'; // código enviado ao cliente no e-mail de compra da Kiwify
+var $=function(i){return document.getElementById(i)};
+var refs=[],usados=0,premium=false;
+try{var S=JSON.parse(localStorage.getItem('planoleve')||'{}');refs=S.refs||[];usados=S.usados||0;premium=!!S.premium}catch(e){}
+function salvar(){try{localStorage.setItem('planoleve',JSON.stringify({refs:refs,usados:usados,premium:premium}))}catch(e){}}
+
+function ir(id,b){
+ document.querySelectorAll('.sec').forEach(function(s){s.classList.remove('on')});
+ $(id).classList.add('on');
+ document.querySelectorAll('nav button').forEach(function(x){x.classList.remove('on')});
+ b.classList.add('on');window.scrollTo(0,0);
+}
+
+function calcular(){
+ var p=parseFloat($('peso').value),a=parseFloat($('alt').value),i=parseFloat($('idade').value);
+ var er=$('errcalc');if(!p||!a||!i||p<20||a<100||i<12){er.style.display='block';$('res').style.display='none';return}er.style.display='none';
+ var h=a/100,imc=p/(h*h);
+ var cls=imc<18.5?'Abaixo do peso':imc<25?'Peso normal':imc<30?'Sobrepeso':'Obesidade';
+ var tmb=10*p+6.25*a-5*i-78; // média entre fórmulas masculina e feminina
+ var cal=tmb*1.4; // atividade leve
+ if($('obj').value==='emagrecer')cal-=400;
+ cal=Math.max(1200,Math.round(cal/10)*10);
+ $('imc').textContent='IMC '+imc.toFixed(1).replace('.',',');
+ $('cls').textContent=cls;
+ $('cal').textContent=cal+' kcal';
+ $('agua').textContent=(p*35/1000).toFixed(1).replace('.',',')+' L';
+ $('res').style.display='block';
+}
+
+function desenhar(){
+ var l=$('lista');l.innerHTML='';
+ refs.forEach(function(r,n){
+  var d=document.createElement('div');d.className='item';
+  var c=document.createElement('div');
+  var s=document.createElement('small');s.textContent=r.k;
+  c.appendChild(s);c.appendChild(document.createTextNode(r.t));
+  var b=document.createElement('button');b.className='x';b.textContent='×';
+  b.onclick=function(){refs.splice(n,1);salvar();desenhar()};
+  d.appendChild(c);d.appendChild(b);l.appendChild(d);
+ });
+ $('cont').textContent=premium?'✨ Acesso vitalício ativo: registros ilimitados':'Registros gratuitos usados: '+Math.min(usados,LIMITE)+' de '+LIMITE;
+ $('jatenho').style.display=premium?'none':'block';
+}
+
+function registrar(){
+ var v=$('txt').value.trim();if(!v)return;
+ if(!premium&&usados>=LIMITE){abrir();return}
+ refs.push({t:v,k:$('tipo').value});usados++;salvar();
+ $('txt').value='';desenhar();
+}
+function fechar(){$('modal').classList.remove('on')}
+function abrir(){$('erro').style.display='none';$('codigo').value='';$('modal').classList.add('on')}
+function validar(){
+ var c=$('codigo').value.trim().toUpperCase();
+ if(c===CODIGO_ACESSO){premium=true;salvar();fechar();desenhar();ir('diario',document.querySelectorAll('nav button')[1])}
+ else{$('erro').style.display='block'}
+}
+function desbloquear(){window.open(CHECKOUT_URL,'_blank')}
+
+var M={
+ c:['Omelete de 2 ovos com tomate e pão integral','Iogurte natural com frutas e aveia','Tapioca com queijo branco e café sem açúcar','Mamão com granola e chia','Panqueca de banana com aveia'],
+ a:['Frango grelhado, arroz integral, feijão e salada verde','Peixe assado com legumes e batata-doce','Carne magra, purê de abóbora e brócolis','Salada de grão-de-bico com atum e folhas','Strogonoff leve de frango com arroz integral'],
+ j:['Sopa de legumes com frango desfiado','Omelete de espinafre e salada de tomate','Wrap integral de frango com salada','Abobrinha recheada com carne moída','Salada de ovos cozidos, cenoura e folhas']
+};
+function pick(a){return a[Math.floor(Math.random()*a.length)]}
+function sortear(){
+ $('sug').innerHTML='<div class="meal"><em>☀️ Café da manhã</em>'+pick(M.c)+'</div><div class="meal"><em>🍽️ Almoço</em>'+pick(M.a)+'</div><div class="meal"><em>🌙 Jantar</em>'+pick(M.j)+'</div>';
+}
+function checarLink(){try{var h=(location.hash||'').replace('#','').toUpperCase();if(h===CODIGO_ACESSO&&!premium){premium=true;salvar()}}catch(e){}}
+window.addEventListener('hashchange',function(){checarLink();desenhar()});
+$('comprar').href=CHECKOUT_URL;$('linkcopia').textContent=CHECKOUT_URL;
+checarLink();
+desenhar();
+</script>
+</body>
+</html>
